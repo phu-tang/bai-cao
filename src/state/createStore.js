@@ -1,7 +1,7 @@
 import { applyMiddleware, createStore, compose } from 'redux';
-import { middleware as apiMiddleware } from 'redux-api-call';
 import { compact } from 'lodash/fp';
 import rootReducer from './rootReducer';
+import apiMiddleware from './api';
 
 const enhancers = compact([
   applyMiddleware(apiMiddleware),
