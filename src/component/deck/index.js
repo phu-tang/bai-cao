@@ -53,9 +53,7 @@ export default () => (
           justifyContent: 'center',
           alignItems: 'center',
         }}
-      >
-        <Info />
-      </div>
+      />
       <div style={{ flex: 1, height: '100%' }}>
         <Player player={PLAYER2} />
       </div>
@@ -71,7 +69,9 @@ export default () => (
       <div style={{ flex: 1, height: '100%' }}>
         <Player player={CURRENT_PLAYER} />
       </div>
-      <div style={{ flex: 1 }} />
+      <div style={{ flex: 1 }}>
+        <Info />
+      </div>
     </div>
     <Dialog />
   </div>
