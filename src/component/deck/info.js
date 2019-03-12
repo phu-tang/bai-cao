@@ -21,8 +21,10 @@ const LoadingComponent = branch(
 );
 
 const NewGame = ({ onClick }) => (
-  <div>
-    <Button onClick={onClick}>New game</Button>
+  <div align="center">
+    <Button onClick={onClick} variant={'contained'} color={'primary'}>
+      New game
+    </Button>
   </div>
 );
 
@@ -47,7 +49,7 @@ const RoundContentLayout = ({
   currentUser,
   currentRound,
 }) => (
-  <div>
+  <div align="center">
     <h3>ID: {id}</h3>
     <h4>Round: {currentRound}</h4>
     <p> {status}</p>

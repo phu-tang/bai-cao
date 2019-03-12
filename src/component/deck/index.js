@@ -33,7 +33,6 @@ export default () => (
     <div
       style={{
         flex: 1,
-        background: 'blue',
         display: 'flex',
         flexDirection: 'row',
       }}
@@ -42,16 +41,22 @@ export default () => (
         style={{
           flex: 1,
           height: '100%',
-          background: 'green',
           display: 'flex',
         }}
       >
         <Player player={PLAYER3} />
       </div>
-      <div style={{ flex: 1, height: '100%' }}>
+      <div
+        style={{
+          flex: 1,
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <Info />
       </div>
-      <div style={{ flex: 1, height: '100%', background: 'orange' }}>
+      <div style={{ flex: 1, height: '100%' }}>
         <Player player={PLAYER2} />
       </div>
     </div>

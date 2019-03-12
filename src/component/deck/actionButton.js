@@ -23,7 +23,9 @@ import {
 } from './state';
 
 const Layout = ({ label, onClick }) => (
-  <Button onClick={onClick}>{label}</Button>
+  <Button onClick={onClick} variant={'contained'} color={'primary'}>
+    {label}
+  </Button>
 );
 
 const LoadingComponent = branch(
