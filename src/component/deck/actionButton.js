@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, branch, renderComponent, mapProps } from 'recompose';
-
+import { Button } from '@material-ui/core';
 import {
   initGameFA,
   PLAYER1,
@@ -17,10 +17,13 @@ import {
   winAC,
   canHaveNewRoundSelector,
   initRoundAC,
+  currentRoundSelector,
+  TOTAL_ROUND,
+  openDialogAC,
 } from './state';
 
 const Layout = ({ label, onClick }) => (
-  <button onClick={onClick}>{label}</button>
+  <Button onClick={onClick}>{label}</Button>
 );
 
 const LoadingComponent = branch(
@@ -51,17 +54,25 @@ const DrawButton = compose(
 
 const RevealButton = compose(
   connect(
-    state => ({ winners: winnerSelector(state) }),
-    { reveal: revealAC, addWinner: winAC },
+    state => ({
+      winners: winnerSelector(state),
+      currentRound: currentRoundSelector(state),
+    }),
+    { reveal: revealAC, addWinner: winAC, openDialog: openDialogAC },
   ),
-  mapProps(({ reveal, addWinner, winners, ...others }) => ({
-    ...others,
-    label: 'Reveal',
-    onClick: () => {
-      reveal();
-      addWinner(winners);
-    },
-  })),
+  mapProps(
+    ({ reveal, addWinner, winners, currentRound, openDialog, ...others }) => ({
+      ...others,
+      label: 'Reveal',
+      onClick: () => {
+        reveal();
+        addWinner(winners);
+        if (currentRound === TOTAL_ROUND) {
+          openDialog();
+        }
+      },
+    }),
+  ),
 )(Layout);
 
 const NewRoundButton = compose(

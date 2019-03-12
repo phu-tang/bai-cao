@@ -17,20 +17,25 @@ import {
 } from 'lodash/fp';
 import { combineReducers } from 'redux';
 import { ACTIONS, makeFetchAction } from 'redux-api-call';
+import { createSelector } from 'reselect';
 
 export const PLAYER1 = 'PLAYER1';
 export const PLAYER2 = 'PLAYER2';
 export const PLAYER3 = 'PLAYER3';
-export const CURRENT_PLAYER = 'CURRENT_PLAYER';
+export const CURRENT_PLAYER = 'you';
 
-const TOTAL_ROUND = 5;
+export const TOTAL_ROUND = 5;
 const BET_VALUE = 5000;
 
 const INIT_ROUND_ACTION = 'INIT_ROUND_ACTION';
 const REVEAL_ACTION = 'REVEAL_ACTION';
 const WIN_ROUND_ACTION = 'WIN_ROUND_ACTION';
+const TOGGLE_DIALOG_ACTION = 'TOGGLE_DIALOG_ACTION';
 
 const THREE_KING_VALUE = 31;
+
+const DEFAULT_PLAY_CARD =
+  'https://product.hstatic.net/1000273792/product/2_7b8007e29a664c6eb0a213165dd70f68_master.jpg';
 
 const is3King = cards =>
   flow(
@@ -57,7 +62,14 @@ const playerCardValue = cards => {
     item => item % 10,
   )(cards);
 };
-
+export const openDialogAC = always({
+  type: TOGGLE_DIALOG_ACTION,
+  payload: true,
+});
+export const closeDialogAC = always({
+  type: TOGGLE_DIALOG_ACTION,
+  payload: false,
+});
 export const initRoundAC = always({ type: INIT_ROUND_ACTION });
 export const revealAC = always({ type: REVEAL_ACTION });
 export const winAC = (winner = []) => ({
@@ -158,6 +170,46 @@ export const winnerSelector = state => {
   return value;
 };
 
+export const isEmptyCards = playerName =>
+  flow(
+    path(`deck.cards.${playerName}`),
+    item => size(item) === 0,
+  );
+
+export const imageCardsSelector = playerName =>
+  createSelector(
+    path(`deck.cards.${playerName}`),
+    isRevealSelector,
+    (cards, isReveal) => {
+      if (playerName === CURRENT_PLAYER || isReveal) {
+        return map('image', cards);
+      }
+      return [DEFAULT_PLAY_CARD, DEFAULT_PLAY_CARD, DEFAULT_PLAY_CARD];
+    },
+  );
+
+export const currentValueSelector = flow(
+  path(`deck.cards.${CURRENT_PLAYER}`),
+  playerCardValue,
+  item => (item === THREE_KING_VALUE ? ' Three king' : item),
+);
+
+export const isOpenDialogSelector = path('deck.isOpenDialog');
+
+export const winnerMessageSelector = state => {
+  const maxValue = flow(
+    path('deck.playerScores'),
+    map(item => item),
+    max,
+  )(state);
+  const winners = flow(
+    path('deck.playerScores'),
+    pickBy(item => item === maxValue),
+    keys,
+  )(state);
+  return `${join(',', winners)} win the game with ${maxValue} scores`;
+};
+
 const playerScoreReducer = handleActions(
   {
     [ACTIONS.COMPLETE]: (state, { payload }) => {
@@ -227,13 +279,7 @@ const revealReducer = handleActions(
 
 const cardsReducer = handleActions(
   {
-    [ACTIONS.COMPLETE]: (state, { payload }) => {
-      if (path('name', payload) === 'initGame') {
-        return {};
-      }
-      return state;
-    },
-    [INIT_ROUND_ACTION]: {},
+    [INIT_ROUND_ACTION]: always({}),
     [ACTIONS.COMPLETE]: (state, { payload }) => {
       if (path('name', payload) === 'draw') {
         const player = path('player', payload);
@@ -243,16 +289,18 @@ const cardsReducer = handleActions(
           [player]: cards,
         };
       }
+      if (path('name', payload) === 'initGame') {
+        return {};
+      }
       return state;
     },
   },
   {},
 );
 
-export const currentValueSelector = flow(
-  path(`deck.cards.${CURRENT_PLAYER}`),
-  playerCardValue,
-  item => (item === THREE_KING_VALUE ? ' Three king' : item),
+const isOpenDialogReducer = handleActions(
+  { [TOGGLE_DIALOG_ACTION]: (state, { payload }) => payload },
+  false,
 );
 
 const reducer = combineReducers({
@@ -260,6 +308,7 @@ const reducer = combineReducers({
   playerScores: playerScoreReducer,
   reveal: revealReducer,
   cards: cardsReducer,
+  isOpenDialog: isOpenDialogReducer,
 });
 
 export default {

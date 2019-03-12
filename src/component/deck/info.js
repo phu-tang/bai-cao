@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { compose, branch, renderComponent } from 'recompose';
+import { Button } from '@material-ui/core';
 import {
   initGameFA,
   currentDeckSelector,
@@ -21,7 +22,7 @@ const LoadingComponent = branch(
 
 const NewGame = ({ onClick }) => (
   <div>
-    <button onClick={onClick}>New game</button>
+    <Button onClick={onClick}>New game</Button>
   </div>
 );
 
